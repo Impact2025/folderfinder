@@ -6,7 +6,9 @@
 import { neon } from '@neondatabase/serverless'
 import { scrapeAH } from './ah'
 import { scrapeJumbo } from './jumbo'
-import { scrapeViaApify } from './apify'
+import { scrapeLidl } from './lidl'
+import { scrapeAldi } from './aldi'
+import { scrapeVomar } from './vomar'
 import { getWeekDates } from './utils'
 import { normalizeProductName, extractUnitSize, computePricePerUnit } from '../lib/normalize'
 import { calculateDiscountPercent, parseSpecialDeal } from '../lib/discount'
@@ -119,16 +121,16 @@ export async function runAllScrapers(): Promise<void> {
   console.log('🛒 FolderFinder scraper started:', new Date().toISOString())
   const { week, year } = getWeekDates()
 
-  // Run AH and Jumbo in parallel (direct APIs, fast)
-  const [ahResult, jumboResult] = await Promise.all([
+  // Run all scrapers in parallel — direct APIs, no paid services
+  const [ahResult, jumboResult, lidlResult, aldiResult, vomarResult] = await Promise.all([
     scrapeAH(),
     scrapeJumbo(),
+    scrapeLidl(),
+    scrapeAldi(),
+    scrapeVomar(),
   ])
 
-  // Run Apify for remaining supermarkets
-  const apifyResults = await scrapeViaApify()
-
-  const allResults = [ahResult, jumboResult, ...apifyResults]
+  const allResults = [ahResult, jumboResult, lidlResult, aldiResult, vomarResult]
 
   let totalInserted = 0, totalUpdated = 0
 
