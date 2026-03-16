@@ -12,6 +12,7 @@ const navLinks = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/producten', label: 'Producten' },
   { href: '/vergelijk', label: 'Vergelijk' },
+  { href: '/bio', label: '🌱 Bio' },
 ]
 
 interface NavHeaderProps {
