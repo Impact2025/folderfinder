@@ -11,7 +11,7 @@ const APIFY_BASE = 'https://api.apify.com/v2'
 const ACTOR_ID = 'harvestedge/dutch-supermarkets-all-11'
 
 // Supermarkets handled by Apify (AH and Jumbo are handled by direct scrapers)
-const APIFY_SUPERMARKETS = ['lidl', 'aldi', 'plus', 'dirk', 'hoogvliet', 'vomar', 'poiesz', 'spar', 'dekamarkt']
+const APIFY_SUPERMARKETS = ['lidl', 'aldi', 'vomar']
 
 interface ApifyProduct {
   store?: string
