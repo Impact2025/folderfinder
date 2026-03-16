@@ -28,12 +28,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const password = credentials?.password as string | undefined
         if (!email || !password) return null
 
-        // Load allowed users from env: JSON array [{"email":"...","hash":"..."}]
-        let allowed: Array<{ email: string; hash: string }> = []
+        // Load allowed users from env, with built-in demo fallback
+        const defaultUsers = [
+          {
+            email: 'v.munster@weareimpact.nl',
+            hash: '$2b$12$owIxLs1uXXgtnr9tZNH1Oec2U95qh.XY7mi4PuSrFVn9zLAQhDiK2',
+          },
+        ]
+        let allowed: Array<{ email: string; hash: string }> = defaultUsers
         try {
-          allowed = JSON.parse(process.env.CREDENTIALS_USERS ?? '[]')
+          const fromEnv = JSON.parse(process.env.CREDENTIALS_USERS ?? '[]')
+          if (fromEnv.length > 0) allowed = fromEnv
         } catch {
-          return null
+          // keep default
         }
 
         const entry = allowed.find((u) => u.email.toLowerCase() === email)
