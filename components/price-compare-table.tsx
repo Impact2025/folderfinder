@@ -101,11 +101,11 @@ export function PriceCompareTable({ rows, supermarkets }: PriceCompareTableProps
                             : 'text-foreground'
                         )}
                       >
-                        €{deal.dealPrice.toFixed(2)}
+                        €{Number(deal.dealPrice).toFixed(2)}
                       </span>
                       {deal.normalPrice != null && (
                         <span className="text-xs text-muted-foreground line-through tabular-nums">
-                          €{deal.normalPrice.toFixed(2)}
+                          €{Number(deal.normalPrice).toFixed(2)}
                         </span>
                       )}
                       {deal.discountPercent != null && deal.discountPercent > 0 && (

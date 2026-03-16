@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
+import { NavHeader } from '@/components/nav-header'
 
 export default async function AppLayout({
   children,
@@ -13,8 +14,13 @@ export default async function AppLayout({
   }
 
   return (
-    <div className="mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-6">
-      {children}
-    </div>
+    <>
+      <NavHeader userEmail={session.user.email} />
+      <main>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          {children}
+        </div>
+      </main>
+    </>
   )
 }

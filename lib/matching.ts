@@ -81,6 +81,46 @@ export async function findMatchesForUser(
 }
 
 /**
+ * Fetch top 15 deals by discount percentage for the current week
+ */
+export async function getTop15Deals(): Promise<Deal[]> {
+  const rows = await sql`
+    SELECT
+      d.id,
+      d.supermarket_id  AS "supermarketId",
+      s.name            AS "supermarketName",
+      s.slug            AS "supermarketSlug",
+      s.color           AS "supermarketColor",
+      d.external_id     AS "externalId",
+      d.product_name    AS "productName",
+      d.brand,
+      d.category,
+      d.normal_price    AS "normalPrice",
+      d.deal_price      AS "dealPrice",
+      d.discount_percent AS "discountPercent",
+      d.discount_label  AS "discountLabel",
+      d.unit_size       AS "unitSize",
+      d.price_per_unit  AS "pricePerUnit",
+      d.image_url       AS "imageUrl",
+      d.valid_from      AS "validFrom",
+      d.valid_until     AS "validUntil",
+      d.week_number     AS "weekNumber",
+      d.year,
+      d.barcode
+    FROM deals d
+    JOIN supermarkets s ON s.id = d.supermarket_id
+    WHERE
+      d.valid_from <= CURRENT_DATE
+      AND d.valid_until >= CURRENT_DATE
+      AND d.discount_percent IS NOT NULL
+      AND d.discount_percent > 0
+    ORDER BY d.discount_percent DESC
+    LIMIT 15
+  `
+  return rows as Deal[]
+}
+
+/**
  * Build price comparison matrix
  */
 export async function buildCompareMatrix(
