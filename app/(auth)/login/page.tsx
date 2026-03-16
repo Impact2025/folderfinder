@@ -6,21 +6,41 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { Folder, Mail, ArrowRight, Loader2 } from 'lucide-react'
+import { Folder, Mail, ArrowRight, Loader2, Lock } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [isPending, setIsPending] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleCredentials(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
+    setIsPending(true)
+    try {
+      const result = await signIn('credentials', {
+        email: email.trim(),
+        password,
+        redirect: false,
+      })
+      if (result?.error) {
+        setError('Onjuist e-mailadres of wachtwoord.')
+      } else {
+        window.location.href = '/dashboard'
+      }
+    } catch {
+      setError('Er is iets misgegaan. Probeer het opnieuw.')
+    } finally {
+      setIsPending(false)
+    }
+  }
 
+  async function handleMagicLink() {
+    setError(null)
     const trimmed = email.trim()
     if (!trimmed) return
-
     setIsPending(true)
     try {
       await signIn('resend', {
@@ -63,9 +83,9 @@ export default function LoginPage() {
               </>
             ) : (
               <>
-                <CardTitle className="text-lg">Log in met je e-mailadres</CardTitle>
+                <CardTitle className="text-lg">Inloggen</CardTitle>
                 <CardDescription>
-                  Je ontvangt een magic link om direct in te loggen.
+                  Log in met je e-mailadres en wachtwoord.
                 </CardDescription>
               </>
             )}
@@ -73,7 +93,7 @@ export default function LoginPage() {
 
           {!submitted && (
             <CardContent className="pt-0">
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleCredentials} className="space-y-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="email">E-mailadres</Label>
                   <Input
@@ -90,6 +110,21 @@ export default function LoginPage() {
                   />
                 </div>
 
+                <div className="space-y-1.5">
+                  <Label htmlFor="password">Wachtwoord</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isPending}
+                    className="h-11"
+                  />
+                </div>
+
                 {error && (
                   <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-2">
                     {error}
@@ -98,27 +133,48 @@ export default function LoginPage() {
 
                 <Button
                   type="submit"
-                  disabled={isPending || !email.trim()}
+                  disabled={isPending || !email.trim() || !password}
                   className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white font-medium"
                 >
                   {isPending ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Verzenden…
+                      Inloggen…
                     </>
                   ) : (
                     <>
-                      Stuur magic link
-                      <ArrowRight className="w-4 h-4 ml-2" />
+                      <Lock className="w-4 h-4 mr-2" />
+                      Inloggen
                     </>
                   )}
                 </Button>
               </form>
 
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-slate-200" />
+                </div>
+                <div className="relative flex justify-center text-xs text-slate-400">
+                  <span className="bg-white px-2">of</span>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isPending || !email.trim()}
+                onClick={handleMagicLink}
+                className="w-full h-11"
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                Stuur magic link
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+
               <p className="mt-5 text-center text-xs text-slate-500">
                 Geen account?{' '}
                 <span className="text-slate-700">
-                  Je wordt automatisch aangemeld.
+                  Vraag toegang aan de beheerder.
                 </span>
               </p>
             </CardContent>
