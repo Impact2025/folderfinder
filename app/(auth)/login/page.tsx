@@ -20,13 +20,14 @@ export default function LoginPage() {
     setError(null)
     setIsPending(true)
     try {
-      const result = await signIn('credentials', {
-        email: email.trim(),
-        password,
-        redirect: false,
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password }),
       })
-      if (result?.error) {
-        setError('Onjuist e-mailadres of wachtwoord.')
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error ?? 'Onjuist e-mailadres of wachtwoord.')
       } else {
         window.location.href = '/dashboard'
       }
