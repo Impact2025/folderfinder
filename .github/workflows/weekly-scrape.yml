@@ -1,0 +1,46 @@
+name: Weekly Supermarket Scrape
+
+on:
+  schedule:
+    # Every Monday at 06:00 UTC (08:00 Amsterdam)
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      supermarkets:
+        description: 'Comma-separated supermarket slugs to scrape (empty = all)'
+        required: false
+        default: ''
+
+jobs:
+  scrape:
+    name: Scrape deals
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install tsx (TypeScript runner)
+        run: npm install -g tsx
+
+      - name: Run scrapers
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
+        run: tsx scrapers/index.ts
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Scrape failed! Check the logs above."
+          # Optional: add Slack/email notification here
